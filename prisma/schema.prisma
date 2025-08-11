@@ -1,0 +1,116 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - Represents both Care Workers and Managers
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String
+  role           UserRole     @default(CARE_WORKER)
+  auth0Id        String       @unique
+  organizationId String
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shifts         Shift[]
+  
+  // Indexes for performance
+  @@index([organizationId])
+  @@index([auth0Id])
+  @@index([role])
+  
+  @@map("users")
+}
+
+// Organization model - Represents healthcare organizations
+model Organization {
+  id         String    @id @default(cuid())
+  name       String
+  locationId String?   @unique
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  // Relations
+  location   Location? @relation(fields: [locationId], references: [id])
+  users      User[]
+  
+  @@map("organizations")
+}
+
+// Location model - Defines geofenced areas for clocking in
+model Location {
+  id              String        @id @default(cuid())
+  name            String
+  address         String?       // Optional: street address for reference
+  latitude        Float
+  longitude       Float
+  radiusInMeters  Int           @default(100)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  organization    Organization?
+  
+  // Index for geospatial queries
+  @@index([latitude, longitude])
+  
+  @@map("locations")
+}
+
+// Shift model - Tracks work shifts and clock in/out events
+model Shift {
+  id            String      @id @default(cuid())
+  userId        String
+  clockInTime   DateTime?
+  clockOutTime  DateTime?
+  clockInLat    Float?
+  clockInLon    Float?
+  clockOutLat   Float?
+  clockOutLon   Float?
+  clockInNote   String?     @db.Text
+  clockOutNote  String?     @db.Text
+  status        ShiftStatus @default(ACTIVE)
+  
+  // Calculated fields (stored for performance)
+  durationMinutes Int?      // Duration in minutes, calculated on clock out
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Indexes for performance optimization
+  @@index([userId])
+  @@index([status])
+  @@index([clockInTime])
+  @@index([createdAt])
+  
+  @@map("shifts")
+}
+
+// Enums
+enum UserRole {
+  CARE_WORKER
+  MANAGER
+}
+
+enum ShiftStatus {
+  ACTIVE      // User is currently clocked in
+  COMPLETED   // User has clocked out normally
+  CANCELLED   // Shift was cancelled (admin action)
+}

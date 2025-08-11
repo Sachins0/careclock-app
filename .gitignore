@@ -24,6 +24,7 @@ pids
 *.pid.lock
 
 # Environment variables
+.env
 .env*.local
 .env.development
 .env.production
@@ -64,3 +65,5 @@ prisma/migrations/*/migration.sql
 # Cache
 .cache
 .parcel-cache
+
+/generated/prisma

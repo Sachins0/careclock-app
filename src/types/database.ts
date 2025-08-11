@@ -48,5 +48,5 @@ export interface DashboardAnalytics {
   totalCompletedShiftsToday: number;
 }
 
-// Re-export Prisma types for convenience
-export { User, Organization, Location, Shift, UserRole, ShiftStatus };
+// Re-export Prisma types using 'export type'
+export type { User, Organization, Location, Shift, UserRole, ShiftStatus };

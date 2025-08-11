@@ -12,6 +12,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   BellOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -32,31 +33,43 @@ export function AppLayout({ children, title, showSider = true }: AppLayoutProps)
   const router = useRouter();
 
   // Navigation menu items
-  const menuItems = [
+  // Add to the menuItems array in AppLayout.tsx
+    const menuItems = [
     {
-      key: '/dashboard',
-      icon: <DashboardOutlined />,
-      label: <Link href="/dashboard">Dashboard</Link>,
+        key: '/dashboard',
+        icon: <DashboardOutlined />,
+        label: <Link href="/dashboard">Dashboard</Link>,
     },
     {
-      key: '/shifts',
-      icon: <ClockCircleOutlined />,
-      label: <Link href="/shifts">My Shifts</Link>,
+        key: '/shifts',
+        icon: <ClockCircleOutlined />,
+        label: <Link href="/shifts">My Shifts</Link>,
     },
     // Manager-only items
     ...(isManager ? [
-      {
+        {
+        key: 'manager-section',
+        type: 'group',
+        label: 'Management',
+        },
+        {
         key: '/manager',
         icon: <TeamOutlined />,
-        label: <Link href="/manager">Staff Management</Link>,
-      },
-      {
+        label: <Link href="/manager">Live Dashboard</Link>,
+        },
+        {
+        key: '/manager/reports',
+        icon: <BarChartOutlined />,
+        label: <Link href="/manager/reports">Reports</Link>,
+        },
+        {
         key: '/settings',
         icon: <SettingOutlined />,
         label: <Link href="/settings">Settings</Link>,
-      },
+        },
     ] : []),
-  ];
+    ];
+
 
   // User dropdown menu
   const userMenu = {

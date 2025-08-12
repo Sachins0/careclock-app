@@ -30,6 +30,7 @@ import {
 import { chartTheme } from '@/lib/charts/config';
 import { format, subDays } from 'date-fns';
 import { set } from 'lodash';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -110,7 +111,7 @@ const GET_MANAGER_DASHBOARD_DATA = `
 `;
 
 export default function ManagerDashboardPage() {
-  const [dateRange, setDateRange] = useState<[any, any] | null>(null);
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
   const [days, setDays] = useState(7);
   const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
 
@@ -128,6 +129,11 @@ export default function ManagerDashboardPage() {
   // Store interval ID directly without state
   return () => clearInterval(interval);
 }, []); // Empty dependency array prevents infinite loop
+
+
+  const handleDateRangeChange = (dates: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
+    setDateRange(dates);
+  };
 
   if (loading && !data) {
     return (
@@ -262,7 +268,7 @@ export default function ManagerDashboardPage() {
                   <RangePicker
                     style={{ width: '100%' }}
                     value={dateRange}
-                    onChange={setDateRange}
+                    onChange={handleDateRangeChange}
                   />
                 </Space>
               </Col>

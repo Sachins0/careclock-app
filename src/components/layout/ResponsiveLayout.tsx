@@ -29,17 +29,17 @@ export function ResponsiveLayout({
     setIsMobile(!screens.md);
   }, [screens]);
 
-  if (isMobile) {
-    return (
-      <MobileLayout 
-        title={title} 
-        showBack={showBack} 
-        backUrl={backUrl}
-      >
-        {children}
-      </MobileLayout>
-    );
-  }
+  // if (isMobile) {
+  //   return (
+  //     <MobileLayout 
+  //       title={title} 
+  //       showBack={showBack} 
+  //       backUrl={backUrl}
+  //     >
+  //       {children}
+  //     </MobileLayout>
+  //   );
+  // }
 
   return (
     <AppLayout title={title} showSider={showSider}>

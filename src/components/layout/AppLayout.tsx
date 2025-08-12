@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState, ReactNode } from 'react';
-import { Layout, Menu, Avatar, Dropdown, Button, Space, Badge, Typography } from 'antd';
-import { InstallButton } from '@/components/pwa/InstallButton';
-import { UpdateAvailable } from '@/components/pwa/UpdateAvailable';
-import { OfflineIndicator } from '@/components/pwa/OfflineIndicator';
-import { usePWA } from '@/context/PWAContext';
+import React, { useState, useEffect } from 'react';
+import { Layout, Menu, Avatar, Dropdown, Button, Space, Badge, Typography, Drawer } from 'antd';
 import { 
   ClockCircleOutlined,
   DashboardOutlined,
@@ -13,10 +9,9 @@ import {
   SettingOutlined,
   UserOutlined,
   LogoutOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+  MenuOutlined,
   BellOutlined,
-  BarChartOutlined
+  BarChartOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -26,81 +21,227 @@ const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
 interface AppLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
   title?: string;
   showSider?: boolean;
 }
 
 export function AppLayout({ children, title, showSider = true }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileDrawerVisible, setMobileDrawerVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { user, dbUser, isManager } = useAuth();
-  const { canInstall } = usePWA();
   const router = useRouter();
 
-  // Navigation menu items
-  // Add to the menuItems array in AppLayout.tsx
-    const menuItems = [
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+ // ✅ Navigation menu items - ADD REPORTS BACK
+const navigationItems = [
+  {
+    key: '/dashboard',
+    icon: <DashboardOutlined />,
+    label: 'Dashboard',
+    onClick: () => {
+      router.push('/dashboard');
+      setMobileDrawerVisible(false);
+    }
+  },
+  {
+    key: '/shifts',
+    icon: <ClockCircleOutlined />,
+    label: 'My Shifts',
+    onClick: () => {
+      router.push('/shifts');
+      setMobileDrawerVisible(false);
+    }
+  },
+  // Manager-only items
+  ...(isManager ? [
     {
-        key: '/dashboard',
-        icon: <DashboardOutlined />,
-        label: <Link href="/dashboard">Dashboard</Link>,
+      type: 'divider' as const,
     },
     {
-        key: '/shifts',
-        icon: <ClockCircleOutlined />,
-        label: <Link href="/shifts">My Shifts</Link>,
+      key: 'manager-section',
+      type: 'group' as const,
+      label: 'Management',
     },
-    // Manager-only items
-    ...(isManager ? [
-        {
-        key: 'manager-section',
-        type: 'group',
-        label: 'Management',
-        },
-        {
-        key: '/manager',
-        icon: <TeamOutlined />,
-        label: <Link href="/manager">Live Dashboard</Link>,
-        },
-        {
-        key: '/manager/reports',
-        icon: <BarChartOutlined />,
-        label: <Link href="/manager/reports">Reports</Link>,
-        },
-        {
-        key: '/settings',
-        icon: <SettingOutlined />,
-        label: <Link href="/settings">Settings</Link>,
-        },
-    ] : []),
-    ];
+    {
+      key: '/manager',
+      icon: <TeamOutlined />,
+      label: 'Live Dashboard',
+      onClick: () => {
+        router.push('/manager');
+        setMobileDrawerVisible(false);
+      }
+    },
+    // ✅ ADD REPORTS BACK
+    {
+      key: '/manager/reports',
+      icon: <BarChartOutlined />, // Add this import if missing
+      label: 'Reports',
+      onClick: () => {
+        router.push('/manager/reports');
+        setMobileDrawerVisible(false);
+      }
+    },
+    {
+      key: '/settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => {
+        router.push('/settings');
+        setMobileDrawerVisible(false);
+      }
+    },
+  ] : []),
+];
+
+// ✅ Desktop menu items - ADD REPORTS BACK
+const desktopMenuItems = [
+  {
+    key: '/dashboard',
+    icon: <DashboardOutlined />,
+    label: <Link href="/dashboard">Dashboard</Link>,
+  },
+  {
+    key: '/shifts',
+    icon: <ClockCircleOutlined />,
+    label: <Link href="/shifts">My Shifts</Link>,
+  },
+  ...(isManager ? [
+    {
+      key: 'manager-section',
+      type: 'group' as const,
+      label: 'Management',
+    },
+    {
+      key: '/manager',
+      icon: <TeamOutlined />,
+      label: <Link href="/manager">Live Dashboard</Link>,
+    },
+    // ✅ ADD REPORTS BACK
+    {
+      key: '/manager/reports',
+      icon: <BarChartOutlined />,
+      label: <Link href="/manager/reports">Reports</Link>,
+    },
+    {
+      key: '/settings',
+      icon: <SettingOutlined />,
+      label: <Link href="/settings">Settings</Link>,
+    },
+  ] : []),
+];
 
 
-  // User dropdown menu
-  const userMenu = {
-    items: [
-      {
-        key: 'profile',
-        icon: <UserOutlined />,
-        label: 'Profile',
-        onClick: () => router.push('/profile'),
-      },
-      {
-        type: 'divider' as const,
-      },
-      {
-        key: 'logout',
-        icon: <LogoutOutlined />,
-        label: 'Logout',
-        onClick: () => window.location.href = '/api/auth/logout',
-      },
-    ],
-  };
+  // ✅ User dropdown menu items (separate from navigation)
+  const userMenuItems = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      onClick: () => router.push('/profile'),
+    },
+    {
+      type: 'divider' as const,
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+      onClick: () => window.location.href = '/api/auth/logout',
+    },
+  ];
+
+  // ✅ Fixed Mobile Navigation Menu
+  const MobileNavigationMenu = () => (
+    <div style={{ padding: '16px 0' }}>
+      {/* User Info Section in Mobile Drawer */}
+      {user && (
+        <div style={{ 
+          padding: '16px 24px', 
+          borderBottom: '1px solid #f0f0f0',
+          marginBottom: '16px' 
+        }}>
+          <Space>
+            <Avatar 
+              src={user.picture} 
+              icon={<UserOutlined />}
+              size="large"
+            />
+            <div>
+              <Text strong style={{ display: 'block' }}>{user.name}</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {dbUser?.role === 'MANAGER' ? 'Manager' : 'Care Worker'}
+              </Text>
+            </div>
+          </Space>
+        </div>
+      )}
+      
+      {/* Navigation Items */}
+      <Menu
+        mode="inline"
+        selectedKeys={[window.location.pathname]}
+        items={navigationItems}
+        style={{ border: 'none' }}
+      />
+      
+      {/* User Actions at Bottom */}
+      {user && (
+        <div style={{ 
+          padding: '16px 24px', 
+          borderTop: '1px solid #f0f0f0',
+          marginTop: '16px' 
+        }}>
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Button 
+              type="text" 
+              icon={<UserOutlined />}
+              onClick={() => {
+                router.push('/profile');
+                setMobileDrawerVisible(false);
+              }}
+              style={{ 
+                width: '100%', 
+                textAlign: 'left',
+                justifyContent: 'flex-start' 
+              }}
+            >
+              Profile
+            </Button>
+            <Button 
+              type="text" 
+              icon={<LogoutOutlined />}
+              onClick={() => window.location.href = '/api/auth/logout'}
+              style={{ 
+                width: '100%', 
+                textAlign: 'left',
+                justifyContent: 'flex-start' 
+              }}
+            >
+              Logout
+            </Button>
+          </Space>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      {/* Sidebar */}
-      {showSider && (
+      {/* Desktop Sidebar */}
+      {!isMobile && showSider && (
         <Sider 
           trigger={null} 
           collapsible 
@@ -132,11 +273,11 @@ export function AppLayout({ children, title, showSider = true }: AppLayoutProps)
             )}
           </div>
 
-          {/* Navigation Menu */}
+          {/* Desktop Navigation Menu */}
           <Menu
             mode="inline"
             selectedKeys={[window.location.pathname]}
-            items={menuItems}
+            items={desktopMenuItems}
             style={{ 
               border: 'none',
               marginTop: 16,
@@ -145,55 +286,96 @@ export function AppLayout({ children, title, showSider = true }: AppLayoutProps)
         </Sider>
       )}
 
+      {/* ✅ Mobile Drawer with Correct Navigation Content */}
+      <Drawer
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <ClockCircleOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+            <span style={{ color: '#1890ff', fontWeight: 600 }}>CareClock</span>
+          </div>
+        }
+        placement="left"
+        closable={true}
+        onClose={() => setMobileDrawerVisible(false)}
+        open={mobileDrawerVisible}
+        width={300}
+        bodyStyle={{ padding: 0 }}
+      >
+        <MobileNavigationMenu />
+      </Drawer>
+
       <Layout>
-        <OfflineIndicator />
-        <UpdateAvailable />
         {/* Header */}
         <Header style={{ 
-          padding: '0 24px', 
+          padding: '0 16px', 
           background: '#fff',
           borderBottom: '1px solid #f0f0f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
+          {/* Left Side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {showSider && (
+            {/* ✅ Mobile menu button */}
+            {isMobile ? (
               <Button
                 type="text"
-                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
-                style={{ fontSize: 16 }}
+                icon={<MenuOutlined />}
+                onClick={() => setMobileDrawerVisible(true)}
+                style={{ fontSize: 18 }}
               />
+            ) : (
+              /* Desktop collapse button */
+              showSider && (
+                <Button
+                  type="text"
+                  icon={collapsed ? <MenuOutlined /> : <MenuOutlined />}
+                  onClick={() => setCollapsed(!collapsed)}
+                  style={{ fontSize: 16 }}
+                />
+              )
             )}
             
-            {title && (
+            {/* Page Title */}
+            {title && !isMobile && (
               <Title level={3} style={{ margin: 0 }}>
                 {title}
               </Title>
             )}
+            
+            {/* Mobile: Show app name instead of page title */}
+            {title && isMobile && (
+              <Text strong style={{ fontSize: 16 }}>CareClock</Text>
+            )}
           </div>
 
-          {/* Header Actions */}
-          <Space size="middle">
-            {canInstall && <InstallButton />}
-            {/* Notifications */}
-            <Badge count={0} size="small">
-              <Button 
-                type="text" 
-                icon={<BellOutlined style={{ fontSize: 18 }} />}
-                style={{ display: 'flex', alignItems: 'center' }}
-              />
-            </Badge>
+          {/* Right Side - User Menu (Desktop Only) */}
+          {!isMobile && user && (
+            <Space size="middle">
+              {/* Notifications */}
+              <Badge count={0} size="small">
+                <Button 
+                  type="text" 
+                  icon={<BellOutlined style={{ fontSize: 18 }} />}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                />
+              </Badge>
 
-            {/* User Menu */}
-            {user && (
-              <Dropdown menu={userMenu} placement="bottomRight" arrow>
+              {/* User Dropdown */}
+              <Dropdown 
+                menu={{ items: userMenuItems }} 
+                placement="bottomRight" 
+                arrow
+                trigger={['click']}
+              >
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: 8,
                   cursor: 'pointer',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  transition: 'background-color 0.2s',
                 }}>
                   <Avatar 
                     src={user.picture} 
@@ -210,14 +392,25 @@ export function AppLayout({ children, title, showSider = true }: AppLayoutProps)
                   </div>
                 </div>
               </Dropdown>
-            )}
-          </Space>
+            </Space>
+          )}
+
+          {/* Mobile: Just notifications */}
+          {isMobile && (
+            <Badge count={0} size="small">
+              <Button 
+                type="text" 
+                icon={<BellOutlined style={{ fontSize: 18 }} />}
+                style={{ display: 'flex', alignItems: 'center' }}
+              />
+            </Badge>
+          )}
         </Header>
 
         {/* Main Content */}
         <Content style={{ 
-          margin: 24,
-          minHeight: 'calc(100vh - 112px)', // Account for header height + margins
+          margin: isMobile ? 16 : 24,
+          minHeight: 'calc(100vh - 112px)',
         }}>
           {children}
         </Content>

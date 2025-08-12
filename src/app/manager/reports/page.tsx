@@ -30,6 +30,7 @@ import { Loading } from '@/components/ui/Loading';
 import { useGraphQLQuery } from '@/hooks/useGraphQL';
 import { format, startOfMonth, endOfMonth, subDays } from 'date-fns';
 import { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -160,9 +161,14 @@ export default function ShiftReportsPage() {
     setPagination(prev => ({ ...prev, current: 1 })); // Reset to first page
   };
 
+  const handleDateRangeChange = (dates: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
+    handleFilterChange('dateRange', dates);
+  };
+
   const handleExport = () => {
     setExportModalVisible(true);
   };
+
 
   const generateCSV = () => {
     const headers = [
@@ -213,19 +219,19 @@ export default function ShiftReportsPage() {
   const quickDateFilters = [
     {
       label: 'Today',
-      range: [new Date(), new Date()],
+      range: [dayjs().startOf('day'), dayjs().endOf('day')] as [dayjs.Dayjs, dayjs.Dayjs],
     },
     {
       label: 'Yesterday', 
-      range: [subDays(new Date(), 1), subDays(new Date(), 1)],
+      range: [dayjs().subtract(1, 'day').startOf('day'), dayjs().subtract(1, 'day').endOf('day')] as [dayjs.Dayjs, dayjs.Dayjs],
     },
     {
-      label: 'Last 7 Days',
-      range: [subDays(new Date(), 7), new Date()],
+      label: 'This Week',
+      range: [dayjs().startOf('week'), dayjs().endOf('week')] as [dayjs.Dayjs, dayjs.Dayjs],
     },
     {
       label: 'This Month',
-      range: [startOfMonth(new Date()), endOfMonth(new Date())],
+      range: [dayjs().startOf('month'), dayjs().endOf('month')] as [dayjs.Dayjs, dayjs.Dayjs],
     },
   ];
 

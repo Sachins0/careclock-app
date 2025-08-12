@@ -150,8 +150,14 @@ export default function ShiftsPage() {
     label: 'Last Week', 
     range: [dayjs().subtract(1, 'week').startOf('week'), dayjs().subtract(1, 'week').endOf('week')] as [dayjs.Dayjs, dayjs.Dayjs],
   },
-    // { label: 'This Month', value: () => [startOfMonth(new Date()), endOfMonth(new Date())] },
-    // { label: 'Last 30 Days', value: () => [subDays(new Date(), 30), new Date()] },
+  {
+    label: 'This Month',
+    range: [dayjs().startOf('month'), dayjs().endOf('month')] as [dayjs.Dayjs, dayjs.Dayjs],
+  },
+  {
+    label: 'Last 30 Days', 
+    range: [dayjs().subtract(30, 'day'), dayjs()] as [dayjs.Dayjs, dayjs.Dayjs],
+  },
   ];
 
   return (

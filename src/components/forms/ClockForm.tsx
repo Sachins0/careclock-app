@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Button, Input, Space, Typography, Alert, Modal, Progress, Tooltip } from 'antd';
+import { BackgroundSyncService } from '@/lib/sync/background-sync';
+import { notifications } from '@/lib/notifications/push';
+import { usePWA } from '@/context/PWAContext';
+import { App } from 'antd';
 import { 
   ClockCircleOutlined, 
   EnvironmentOutlined, 
@@ -41,6 +45,7 @@ interface LocationState {
 }
 
 export function ClockForm({ type, onSuccess, activeShift }: ClockFormProps) {
+  const { modal, message } = App.useApp();
   const [note, setNote] = useState('');
   const [locationState, setLocationState] = useState<LocationState>({
     position: null,
@@ -50,6 +55,9 @@ export function ClockForm({ type, onSuccess, activeShift }: ClockFormProps) {
     distance: 0,
     accuracyLevel: 'low',
   });
+
+   const { isOnline } = usePWA();
+    const backgroundSync = BackgroundSyncService.getInstance();
 
   const { data: userData } = useGraphQLQuery(GET_ME);
   const { mutate: clockIn, loading: clockingIn } = useGraphQLMutation(CLOCK_IN);
@@ -189,7 +197,8 @@ export function ClockForm({ type, onSuccess, activeShift }: ClockFormProps) {
       };
 
       let result;
-      if (type === 'in') {
+      if(isOnline) {
+        if (type === 'in') {
         result = await clockIn({ input });
       } else {
         result = await clockOut({ input });
@@ -198,7 +207,8 @@ export function ClockForm({ type, onSuccess, activeShift }: ClockFormProps) {
       const data = type === 'in' ? result.clockIn : result.clockOut;
 
       if (data.success) {
-        Modal.success({
+        notifications.clockInSuccess();
+        modal.success({
           title: `Clock ${type === 'in' ? 'In' : 'Out'} Successful`,
           content: (
             <div>
@@ -214,9 +224,25 @@ export function ClockForm({ type, onSuccess, activeShift }: ClockFormProps) {
           },
         });
       } else {
-        Modal.error({
+        modal.error({
           title: `Clock ${type === 'in' ? 'In' : 'Out'} Failed`,
           content: data.message,
+        });
+      }
+      }
+      else {
+        await backgroundSync.storeSyncData(
+          type === 'in' ? 'clock-in' : 'clock-out',
+          input
+        );
+
+        Modal.success({
+          title: `Clock ${type === 'in' ? 'In' : 'Out'} Saved`,
+          content: 'Your action has been saved and will sync when you\'re back online.',
+          onOk: () => {
+            setNote('');
+            onSuccess?.();
+          },
         });
       }
     } catch (error) {
@@ -334,6 +360,14 @@ export function ClockForm({ type, onSuccess, activeShift }: ClockFormProps) {
   return (
     <Card>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
+         {!isOnline && (
+          <Alert
+            message="Offline Mode"
+            description="Actions will be synced when you're back online."
+            type="info"
+            showIcon
+          />
+        )}
         {/* Header */}
         <div style={{ textAlign: 'center' }}>
           <ClockCircleOutlined 

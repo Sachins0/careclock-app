@@ -1,7 +1,8 @@
-import { getSession } from '@auth0/nextjs-auth0';
+import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/database/client';
 import { UserRole } from '@prisma/client';
+import { getSession } from '@auth0/nextjs-auth0';
 
 export interface GraphQLContext {
   prisma: typeof prisma;
@@ -23,7 +24,10 @@ export async function createContext(req: NextRequest): Promise<GraphQLContext> {
 
   try {
     // Get Auth0 session
-    const session = await getSession(req);
+   const cookieStore = await cookies();
+    
+    // Use getSession with request instead
+    const session = await getSession(req, { cookies: cookieStore });
     
     if (session?.user) {
       // Get database user

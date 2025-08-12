@@ -1,15 +1,72 @@
-import type { Metadata } from 'next';
+import '@ant-design/v5-patch-for-react-19';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { AuthProvider } from '@/context/AuthContext';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App } from 'antd';
+import { PWAProvider } from '@/context/PWAContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CareClock - Shift Management System',
-  description: 'Geofenced shift management for healthcare organizations',
+  title: 'CareClock - Healthcare Shift Management',
+  description: 'Geofenced shift management system for healthcare organizations',
+  generator: 'Next.js',
+  manifest: '/manifest.json',
+  keywords: ['healthcare', 'shift management', 'geofencing', 'time tracking'],
+  authors: [{ name: 'CareClock Team' }],
+  creator: 'CareClock',
+  publisher: 'CareClock',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    title: 'CareClock - Healthcare Shift Management',
+    description: 'Geofenced shift management system for healthcare organizations',
+    siteName: 'CareClock',
+    images: ['/icons/icon-512x512.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CareClock - Healthcare Shift Management',
+    description: 'Geofenced shift management system for healthcare organizations',
+    images: ['/icons/icon-512x512.png'],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'CareClock',
+    // startUpImage: [],
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    'apple-mobile-web-app-title': 'CareClock',
+    'application-name': 'CareClock',
+    'msapplication-TileColor': '#1890ff',
+    'msapplication-config': '/browserconfig.xml',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#1890ff' },
+    { media: '(prefers-color-scheme: dark)', color: '#1890ff' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: 'cover',
 };
 
 // CareClock Design System Theme
@@ -137,12 +194,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icons/icon-192x192.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
       <body className={inter.className}>
         <UserProvider>
           <AuthProvider>
-            <ConfigProvider theme={careClockTheme}>
-              {children}
-            </ConfigProvider>
+            <PWAProvider>
+              <ConfigProvider theme={careClockTheme}>
+                <App>
+                  {children}
+                </App>
+              </ConfigProvider>
+            </PWAProvider>
           </AuthProvider>
         </UserProvider>
       </body>

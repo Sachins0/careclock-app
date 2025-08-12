@@ -68,15 +68,20 @@ const afterCallback = async (req: NextRequest, session: any) => {
   }
 };
 
-// Auth0 v3.5.0 compatible handler - REMOVE handleProfile()
-export const GET = handleAuth({
-  login: handleLogin({
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ auth0: string[] }> }
+) {
+  const { auth0 } = await params; // Await params before use
+  
+  return handleAuth({
+    login: handleLogin({
     authorizationParams: {
       prompt: 'login',
     },
   }),
   callback: handleCallback({ afterCallback }),
-  // Remove this line: profile: handleProfile(),
-});
+  })(request, { params: { auth0 } });
+}
 
 export const POST = GET;

@@ -17,6 +17,7 @@ import { ErrorMessage } from '@/components/ui/ErrorBoundary';
 import { useGraphQLQuery } from '@/hooks/useGraphQL';
 import { GET_ME, GET_MY_SHIFTS } from '@/lib/graphql/client';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays } from 'date-fns';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -63,7 +64,7 @@ const GET_MY_SHIFTS_WITH_STATS = `
 `;
 
 export default function ShiftsPage() {
-  const [dateRange, setDateRange] = useState<[any, any] | null>(null);
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [limit, setLimit] = useState(50);
 
@@ -134,15 +135,23 @@ export default function ShiftsPage() {
     return true;
   });
 
-  const handleDateRangeChange = (dates: any) => {
-    setDateRange(dates);
-  };
+  const handleDateRangeChange = (dates: [dayjs.Dayjs, dayjs.Dayjs] | null) => {
+  setDateRange(dates);
+};
+
+
 
   const quickDateFilters = [
-    { label: 'This Week', value: () => [startOfWeek(new Date()), endOfWeek(new Date())] },
-    { label: 'Last Week', value: () => [startOfWeek(subDays(new Date(), 7)), endOfWeek(subDays(new Date(), 7))] },
-    { label: 'This Month', value: () => [startOfMonth(new Date()), endOfMonth(new Date())] },
-    { label: 'Last 30 Days', value: () => [subDays(new Date(), 30), new Date()] },
+   {
+    label: 'This Week',
+    range: [dayjs().startOf('week'), dayjs().endOf('week')] as [dayjs.Dayjs, dayjs.Dayjs],
+  },
+  {
+    label: 'Last Week', 
+    range: [dayjs().subtract(1, 'week').startOf('week'), dayjs().subtract(1, 'week').endOf('week')] as [dayjs.Dayjs, dayjs.Dayjs],
+  },
+    // { label: 'This Month', value: () => [startOfMonth(new Date()), endOfMonth(new Date())] },
+    // { label: 'Last 30 Days', value: () => [subDays(new Date(), 30), new Date()] },
   ];
 
   return (
@@ -236,13 +245,7 @@ export default function ShiftsPage() {
                       <Button
                         key={index}
                         size="small"
-                        onClick={() => {
-                          const range = filter.value();
-                          setDateRange([
-                            { toDate: () => range[0] },
-                            { toDate: () => range[1] }
-                          ] as any);
-                        }}
+                        onClick={() => setDateRange(filter.range)}
                       >
                         {filter.label}
                       </Button>

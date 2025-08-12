@@ -90,7 +90,7 @@ const GET_DETAILED_SHIFTS = `
   }
 `;
 
-interface ReportFilters {
+export interface ReportFilters {
   dateRange: [any, any] | null;
   status: string;
   user: string;

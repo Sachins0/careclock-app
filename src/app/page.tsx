@@ -81,7 +81,7 @@ export default function HomePage() {
               <Card 
                 hoverable
                 style={{ height: '100%', textAlign: 'center' }}
-                bodyStyle={{ padding: 24 }}
+                styles={{ body: { padding: 0 } }}
               >
                 <Space direction="vertical" size="middle">
                   {feature.icon}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Space, Button, DatePicker, Select, Alert } from 'antd';
+import { Card, Row, Col, Typography, Space, Button, DatePicker, Select, Alert, Modal, message } from 'antd';
 import { 
   TeamOutlined,
   BarChartOutlined,
@@ -28,7 +28,8 @@ import {
   formatBarChartData,
 } from '@/lib/charts/utils';
 import { chartTheme } from '@/lib/charts/config';
-import { subDays } from 'date-fns';
+import { format, subDays } from 'date-fns';
+import { set } from 'lodash';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -167,6 +168,7 @@ export default function ManagerDashboardPage() {
     chartTheme.colors.primary
   );
 
+
   const weeklyHoursData = formatBarChartData(
     analytics?.weeklyHoursByStaff?.map((item: any) => ({
       x: item.staffName,
@@ -192,10 +194,20 @@ export default function ManagerDashboardPage() {
   // Calculate KPIs
   const kpiMetrics = calculateKPIMetrics(allShifts, activeStaff);
 
-  const handleExportData = () => {
-    // Implement CSV export functionality
-    console.log('Exporting data...');
-  };
+
+
+  const handleRefresh = async () => {
+  try {
+    await refetch();
+  } catch (error) {
+    console.error('Refresh failed:', error);
+    // Show user-friendly error
+    Modal.error({
+      title: 'Refresh Failed',
+      content: 'Unable to refresh dashboard data. Please check your connection and try again.',
+    });
+  }
+};
 
   return (
     <ManagerOnlyRoute>
@@ -216,16 +228,10 @@ export default function ManagerDashboardPage() {
                 <Space>
                   <Button 
                     icon={<ReloadOutlined />} 
-                    onClick={refetch}
+                    onClick={handleRefresh}
                     loading={loading}
                   >
                     Refresh
-                  </Button>
-                  <Button 
-                    icon={<DownloadOutlined />}
-                    onClick={handleExportData}
-                  >
-                    Export Data
                   </Button>
                 </Space>
               </Col>
@@ -341,7 +347,7 @@ export default function ManagerDashboardPage() {
             <LiveStaffTable
               data={activeStaff}
               loading={loading}
-              onRefresh={refetch}
+              onRefresh={handleRefresh}
               organizationLocation={organization?.location}
             />
           </Card>

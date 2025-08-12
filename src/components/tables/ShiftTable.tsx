@@ -64,6 +64,15 @@ export function ShiftTable({
       return <Text type="secondary">No location</Text>;
     }
 
+    const handleLocationClick = () => {
+    // Option 1: Open in Google Maps
+    const url = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+    window.open(url, '_blank');
+    
+    // Option 2: Show in modal (implement showLocationModal)
+    // showLocationModal(location);
+  };
+
     let distanceFromOrg = 0;
     let withinPerimeter = false;
 
@@ -84,6 +93,7 @@ export function ShiftTable({
             type="link" 
             size="small" 
             icon={<EnvironmentOutlined />}
+            onClick={handleLocationClick}
             style={{ padding: 0, height: 'auto' }}
           >
             View Location

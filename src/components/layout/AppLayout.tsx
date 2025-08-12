@@ -2,6 +2,10 @@
 
 import React, { useState, ReactNode } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Button, Space, Badge, Typography } from 'antd';
+import { InstallButton } from '@/components/pwa/InstallButton';
+import { UpdateAvailable } from '@/components/pwa/UpdateAvailable';
+import { OfflineIndicator } from '@/components/pwa/OfflineIndicator';
+import { usePWA } from '@/context/PWAContext';
 import { 
   ClockCircleOutlined,
   DashboardOutlined,
@@ -30,6 +34,7 @@ interface AppLayoutProps {
 export function AppLayout({ children, title, showSider = true }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { user, dbUser, isManager } = useAuth();
+  const { canInstall } = usePWA();
   const router = useRouter();
 
   // Navigation menu items
@@ -141,6 +146,8 @@ export function AppLayout({ children, title, showSider = true }: AppLayoutProps)
       )}
 
       <Layout>
+        <OfflineIndicator />
+        <UpdateAvailable />
         {/* Header */}
         <Header style={{ 
           padding: '0 24px', 
@@ -169,6 +176,7 @@ export function AppLayout({ children, title, showSider = true }: AppLayoutProps)
 
           {/* Header Actions */}
           <Space size="middle">
+            {canInstall && <InstallButton />}
             {/* Notifications */}
             <Badge count={0} size="small">
               <Button 

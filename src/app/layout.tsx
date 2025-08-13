@@ -6,6 +6,8 @@ import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { AuthProvider } from '@/context/AuthContext';
 import { ConfigProvider, App } from 'antd';
 import { PWAProvider } from '@/context/PWAContext';
+// import { registerServiceWorker } from '@/lib/pwa/register';
+// import { useEffect } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -192,6 +194,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // useEffect(() => {
+  //   registerServiceWorker();
+  // }, []);
   return (
     <html lang="en">
       <head>

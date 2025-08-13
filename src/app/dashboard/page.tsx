@@ -102,7 +102,7 @@ export default function DashboardPage() {
                 </Title>
                 <Text type="secondary">
                   {isManager 
-                    ? 'Manage your team and monitor operations from your dashboard.'
+                    ? 'Manage your team and monitor operations from your dashboard. For location related setup heads to Settings.'
                     : 'Track your shifts and manage your work schedule.'
                   }
                 </Text>
@@ -123,6 +123,9 @@ export default function DashboardPage() {
                 </Text>
                 <Text type="secondary">
                   ({organizationLocation.radiusInMeters}m radius)
+                </Text>
+                <Text type="secondary">
+                  (Change it in Settings)
                 </Text>
               </Space>
             </Card>

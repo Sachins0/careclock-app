@@ -64,6 +64,32 @@ async function main() {
     },
   });
 
+  // Add to your existing seed file
+const demoManager = await prisma.user.upsert({
+  where: { email: 'manager@careclock.demo' },
+  update: {},
+  create: {
+    email: 'manager@careclock.demo',
+    name: 'Demo Manager',
+    auth0Id: 'demo-manager-id',
+    role: 'MANAGER',
+    organizationId: organization.id,
+  },
+});
+
+const demoCareWorker = await prisma.user.upsert({
+  where: { email: 'worker@careclock.demo' },
+  update: {},
+  create: {
+    email: 'worker@careclock.demo',
+    name: 'Demo Care Worker',
+    auth0Id: 'demo-worker-id',
+    role: 'CARE_WORKER',
+    organizationId: organization.id,
+  },
+});
+
+
   console.log('✅ Created users:');
   console.log('  - Manager:', manager.name);
   console.log('  - Care Worker:', careWorker1.name);

@@ -14,7 +14,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
         urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
         handler: 'CacheFirst',
         options: {
-          cacheName: 'images',
+          cacheName: 'careclock-images',
           expiration: {
             maxEntries: 64,
             maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
@@ -26,7 +26,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
         urlPattern: /^\/api\/graphql$/,
         handler: 'NetworkFirst',
         options: {
-          cacheName: 'api-cache',
+          cacheName: 'careclock-api-cache',
           networkTimeoutSeconds: 10,
           expiration: {
             maxEntries: 32,
@@ -47,7 +47,23 @@ const withPWA = require('@ducanh2912/next-pwa').default({
         urlPattern: /\.(?:js|css|woff2?|ttf|eot)$/i,
         handler: 'StaleWhileRevalidate',
         options: {
-          cacheName: 'static-assets',
+          cacheName: 'careclock-static-assets',
+          expiration: {
+            maxEntries: 32,
+            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+          },
+        },
+      },
+      {
+        urlPattern: /^https:\/\/.*\/(dashboard|shifts|manager|settings).*$/,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'careclock-pages-cache',
+          networkTimeoutSeconds: 3,
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 24 * 60 * 60, // 24 hours
+          },
         },
       },
     ],

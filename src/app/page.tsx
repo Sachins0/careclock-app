@@ -9,17 +9,24 @@ import {
   DashboardOutlined,
   TeamOutlined,
   BarChartOutlined,
+  LoginOutlined,
 } from '@ant-design/icons';
 import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
 import { AuthButton } from '@/components/auth/AuthButton';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { useAuth } from '@/context/AuthContext';
+import { DemoCredentials } from '@/components/auth/DemoCredentials';
 import Link from 'next/link';
 
 const { Title, Paragraph } = Typography;
 
 export default function HomePage() {
   const { user } = useAuth();
+
+  if (user) {
+    window.location.href = '/dashboard';
+    return null;
+  }
 
   const features = [
     {
@@ -73,6 +80,32 @@ export default function HomePage() {
             )}
           </Space>
         </Card>
+
+        <DemoCredentials />
+
+        <Card style={{ textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginBottom: 32 }}>
+            <Space direction="vertical" size="middle">
+              <Title level={3}>Ready to Get Started?</Title>
+              <Button
+                type="primary"
+                size="large"
+                icon={<LoginOutlined />}
+                href="/api/auth/login"
+                style={{
+                  height: 50,
+                  fontSize: 16,
+                  background: 'linear-gradient(135deg, #1890ff 0%, #52c41a 100%)',
+                  border: 'none',
+                  boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)',
+                }}
+              >
+                Sign In to CareClock
+              </Button>
+              <Paragraph type="secondary" style={{ fontSize: 12 }}>
+                Secure authentication powered by Auth0
+              </Paragraph>
+            </Space>
+          </Card>
 
         {/* Features Grid */}
         <Row gutter={[24, 24]} style={{ marginBottom: 32 }}>

@@ -81,12 +81,11 @@ This section details the implementation status based on the original project req
 #### 5\. Progressive Web App (PWA)
   * ⚠️ **PWA Implementation Issues**: We attempted to implement PWA features for offline access and app-like installation. A service worker and web app manifest have been created, but they are not functioning correctly. The app is currently installable, but there are issues with offline capabilities.
 
-### ⏳ UPCOMING FEATURES
-
-#### 6\. Automatic Notifications
+  #### 6\. Automatic Notifications
 
   * ⏳ **Push Notifications**: A system for sending push notifications (e.g., for shift reminders or alerts) has not been implemented. This would require a significant addition to the backend and service worker infrastructure.
   * ⏳ **Automatic Geofence Alerts**: Notifications for managers when a worker enters or leaves the geofence were planned but not implemented due to time constraints and the incomplete PWA foundation.
+
 
 ## Architecture & Technology Stack
 

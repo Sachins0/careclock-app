@@ -20,6 +20,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useGraphQLQuery } from '@/hooks/useGraphQL';
 import { GET_ME } from '@/lib/graphql/client';
 import { GeolocationService } from '@/lib/geolocation';
+import { GeofencingSetup } from '@/components/geofencing/GeofencingSetup'; 
 import Link from 'next/link';
 
 const { Title, Text } = Typography;
@@ -112,6 +113,8 @@ export default function DashboardPage() {
               </Col>
             </Row>
           </Card>
+
+          <GeofencingSetup organizationLocation={user?.organization?.location} />
 
           {/* Location Status */}
           {organizationLocation ? (

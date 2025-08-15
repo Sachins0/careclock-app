@@ -75,5 +75,12 @@
       "type": "image/png",
       "purpose": "maskable any"
     }
-  ]
+  ],
+  "permissions": [
+    "notifications",
+    "geolocation",
+    "background-sync"
+  ],
+  
+  "prefer_related_applications": false
 }
